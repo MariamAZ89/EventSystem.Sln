@@ -20,7 +20,7 @@ public class AuthController : ControllerBase
         _configuration = configuration;
     }
 
-    [HttpPost]
+    [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
@@ -30,10 +30,30 @@ public class AuthController : ControllerBase
             if (checkingPassword)
             {
                 var token = await GenerateJwtToken(user);
-                return Ok (new {Token = token});
+                return Ok(new { Token = token });
             }
         }
         return Unauthorized();
+    }
+
+
+    [HttpPost("Register")]
+    public async Task<IActionResult> Register([FromBody] RegisterDto model)
+    {
+        var existingUser = await _userManager.FindByEmailAsync(model.Email);
+        if (existingUser != null)
+        {
+            return BadRequest();
+        }
+
+        var newUser = new ApplicationUser { Email = model.Email, UserName = model.Email };
+        var result = await _userManager.CreateAsync(newUser, model.Password);
+        if (result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(newUser, "User");
+            return Ok(new { Message = "User registred successfully" });
+        }
+        return BadRequest(result.Errors);
     }
 
     private async Task<string> GenerateJwtToken(ApplicationUser user)
