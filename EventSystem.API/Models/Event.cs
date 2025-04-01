@@ -8,6 +8,6 @@ public class Event
     public DateTime Date { get; set; }
     public string Location { get; set; } = string.Empty;
     public int ArtistId { get; set; }
-    public Artist Artist { get; set; } = null!;
-    public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+    public Artist? Artist { get; set; } = null!;
+    public ICollection<Ticket>? Tickets { get; set; }
 }
